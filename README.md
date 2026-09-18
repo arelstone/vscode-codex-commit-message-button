@@ -14,13 +14,17 @@ A deliberately small VS Code extension that adds a sparkle button to the Source 
 3. Click the sparkle button in the Source Control title bar and enter an OpenAI API key when prompted.
 4. Review the generated message before committing.
 
-By default, the extension reads:
+## Defaults and configuration
 
-```text
-.claude/instructions/commit-instructions.md
-```
+The extension uses these defaults:
 
-Set `codexCommitButton.instructionsFile` to a repository-relative path if your instructions live elsewhere, for example `".github/commit-message.md"`. Set `codexCommitButton.model` to choose the Responses API model. Use **Codex: Set OpenAI API Key** or **Codex: Clear OpenAI API Key** to manage the key.
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `codexCommitButton.model` | `gpt-5` | Responses API model used to generate commit messages. |
+| `codexCommitButton.instructionsFile` | `.instructions/commit-instructions.md` | Repository-relative commit-message instructions file. |
+| `codexCommitButton.timeoutSeconds` | `120` | Maximum time to wait for a response. |
+
+Set `codexCommitButton.instructionsFile` to a repository-relative path if your instructions live elsewhere, for example `".github/commit-message.md"`. Set `codexCommitButton.model` or `codexCommitButton.timeoutSeconds` to override the other defaults. Use **Codex: Set OpenAI API Key** or **Codex: Clear OpenAI API Key** to manage the key.
 
 ## Security
 
