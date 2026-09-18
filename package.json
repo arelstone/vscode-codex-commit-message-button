@@ -1,6 +1,6 @@
 {
-  "name": "codex-commit-button",
-  "displayName": "Codex Commit Button",
+  "name": "vscode-codex-commit-message-button",
+  "displayName": "Codex Commit Message Button",
   "description": "A small Source Control sparkle button that uses the OpenAI Responses API to write a commit message.",
   "version": "0.1.0",
   "publisher": "local",
@@ -44,7 +44,7 @@
         },
         "codexCommitButton.instructionsFile": {
           "type": "string",
-          "default": ".claude/instructions/commit-instructions.md",
+          "default": ".instructions/commit-instructions.md",
           "scope": "resource",
           "description": "Repository-relative path to the commit-message instructions file."
         },
