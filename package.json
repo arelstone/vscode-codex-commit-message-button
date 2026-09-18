@@ -1,0 +1,69 @@
+{
+  "name": "codex-commit-button",
+  "displayName": "Codex Commit Button",
+  "description": "A small Source Control sparkle button that uses the OpenAI Responses API to write a commit message.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": { "vscode": "^1.90.0" },
+  "categories": ["SCM Providers"],
+  "activationEvents": ["onCommand:codexCommitButton.generate"],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codexCommitButton.generate",
+        "title": "Generate Commit Message with OpenAI",
+        "category": "Codex",
+        "icon": "$(sparkle)"
+      },
+      { "command": "codexCommitButton.setApiKey", "title": "Set OpenAI API Key", "category": "Codex" },
+      { "command": "codexCommitButton.clearApiKey", "title": "Clear OpenAI API Key", "category": "Codex" }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "codexCommitButton.generate",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ],
+      "commandPalette": [
+        { "command": "codexCommitButton.generate" },
+        { "command": "codexCommitButton.setApiKey" },
+        { "command": "codexCommitButton.clearApiKey" }
+      ]
+    },
+    "configuration": {
+      "title": "Codex Commit Button",
+      "properties": {
+        "codexCommitButton.model": {
+          "type": "string",
+          "default": "gpt-5",
+          "description": "OpenAI model used to generate commit messages."
+        },
+        "codexCommitButton.instructionsFile": {
+          "type": "string",
+          "default": ".claude/instructions/commit-instructions.md",
+          "scope": "resource",
+          "description": "Repository-relative path to the commit-message instructions file."
+        },
+        "codexCommitButton.timeoutSeconds": {
+          "type": "number",
+          "default": 120,
+          "minimum": 10,
+          "maximum": 600,
+          "description": "Maximum time to wait for Codex."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "package": "vsce package"
+  },
+  "dependencies": { "openai": "^6.49.0" },
+  "devDependencies": {
+    "@vscode/vsce": "^3.6.2"
+  }
+}
