@@ -6,7 +6,7 @@ const path = require('node:path');
 const { buildInstructions, cleanMessage, instructionsPathSegments } = require('./message');
 
 const API_KEY_SECRET = 'codexCommitButton.openaiApiKey';
-const DEFAULT_INSTRUCTIONS_FILE = '.claude/instructions/commit-instructions.md';
+const DEFAULT_INSTRUCTIONS_FILE = '.instructions/commit-instructions.md';
 
 async function getGitApi() {
   const extension = vscode.extensions.getExtension('vscode.git');
