@@ -1,7 +1,7 @@
 {
   "name": "vscode-codex-commit-message-button",
   "displayName": "Codex Commit Message Button",
-  "description": "A small Source Control sparkle button that uses the OpenAI Responses API to write a commit message.",
+  "description": "A small Source Control sparkle button that uses the OpenAI Responses API or Codex CLI to write a commit message.",
   "version": "0.1.0",
   "publisher": "local",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "commands": [
       {
         "command": "codexCommitButton.generate",
-        "title": "Generate Commit Message with OpenAI",
+        "title": "Generate Commit Message with Codex",
         "category": "Codex",
         "icon": "$(sparkle)"
       },
@@ -37,10 +37,28 @@
     "configuration": {
       "title": "Codex Commit Button",
       "properties": {
+        "codexCommitButton.provider": {
+          "type": "string",
+          "enum": ["api", "cli"],
+          "default": "api",
+          "scope": "resource",
+          "description": "How to generate commit messages: the OpenAI Responses API or the locally installed Codex CLI."
+        },
         "codexCommitButton.model": {
           "type": "string",
-          "default": "gpt-5",
-          "description": "OpenAI model used to generate commit messages."
+          "enum": ["default", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+          "enumDescriptions": [
+            "Use gpt-5 for the API provider or the configured model for the signed-in Codex CLI.",
+            "GPT-5 for API generation.",
+            "A faster, lower-cost GPT-5 API model.",
+            "The smallest, lowest-cost GPT-5 API model.",
+            "Use gpt-5.6-sol with the Codex CLI, if available to the signed-in account.",
+            "Use gpt-5.6-terra with the Codex CLI, if available to the signed-in account.",
+            "Use gpt-5.6-luna with the Codex CLI, if available to the signed-in account."
+          ],
+          "default": "default",
+          "scope": "resource",
+          "description": "Model used by the selected provider. API and CLI choices are validated when generating a message."
         },
         "codexCommitButton.instructionsFile": {
           "type": "string",

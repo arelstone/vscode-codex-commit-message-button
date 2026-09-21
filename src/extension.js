@@ -4,6 +4,8 @@ const vscode = require('vscode');
 const OpenAI = require('openai');
 const path = require('node:path');
 const { buildInstructions, cleanMessage, instructionsPathSegments } = require('./message');
+const { requestCommitMessageFromCli } = require('./codex-cli');
+const { getModelForProvider } = require('./models');
 
 const API_KEY_SECRET = 'codexCommitButton.openaiApiKey';
 const DEFAULT_INSTRUCTIONS_FILE = '.instructions/commit-instructions.md';
@@ -104,23 +106,34 @@ async function generate(secrets) {
   const inputs = await readRepositoryInputs(repository, instructionsFile);
   if (!inputs) return;
   const timeoutMs = config.get('timeoutSeconds', 120) * 1000;
-  const apiKey = await getApiKey(secrets);
+  const provider = config.get('provider', 'api');
+  if (!['api', 'cli'].includes(provider)) throw new Error('codexCommitButton.provider must be either "api" or "cli".');
+  const model = getModelForProvider(provider, config.get('model', 'default'));
 
   const rawMessage = await vscode.window.withProgress({
     location: vscode.ProgressLocation.SourceControl,
-    title: 'Codex is writing a commit message…',
+    title: provider === 'cli' ? 'Codex CLI is writing a commit message…' : 'Codex is writing a commit message…',
     cancellable: true
-  }, (_progress, token) => requestCommitMessage({
-    apiKey,
-    model: config.get('model', 'gpt-5'),
-    instructions: inputs.instructions,
-    stagedDiff: inputs.stagedDiff,
-    timeoutMs,
-    token
-  }));
+  }, (_progress, token) => provider === 'cli'
+    ? requestCommitMessageFromCli({
+      model,
+      instructions: inputs.instructions,
+      stagedDiff: inputs.stagedDiff,
+      timeoutMs,
+      token,
+      cwd: repository.rootUri.fsPath
+    })
+    : getApiKey(secrets).then((apiKey) => requestCommitMessage({
+      apiKey,
+      model,
+      instructions: inputs.instructions,
+      stagedDiff: inputs.stagedDiff,
+      timeoutMs,
+      token
+    })));
 
   const message = cleanMessage(rawMessage);
-  if (!message) throw new Error('The OpenAI response did not contain a commit message.');
+  if (!message) throw new Error(`The ${provider === 'cli' ? 'Codex CLI' : 'OpenAI'} response did not contain a commit message.`);
   repository.inputBox.value = message;
 }
 
