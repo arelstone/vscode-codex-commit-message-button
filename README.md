@@ -5,7 +5,7 @@ A deliberately small VS Code extension that adds a sparkle button to the Source 
 ## Install
 
 1. In VS Code, run **Extensions: Install from VSIX…**.
-2. Select `codex-commit-button-0.1.0.vsix` and reload VS Code.
+2. Select `vscode-codex-commit-message-button-0.1.0.vsix` and reload VS Code.
 
 ## Use
 
@@ -38,4 +38,4 @@ npm test
 code .
 ```
 
-Press `F5` in VS Code to launch an Extension Development Host. Build an installable package with `npm run package`.
+Launch an Extension Development Host with `fn` + `F5` on macOS, or open **Run and Debug**, select **Run Extension**, and click the play button. Build an installable package with `npm run package`.

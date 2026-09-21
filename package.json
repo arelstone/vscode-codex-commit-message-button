@@ -58,7 +58,17 @@
           ],
           "default": "default",
           "scope": "resource",
-          "description": "Model used by the selected provider. API and CLI choices are validated when generating a message."
+          "description": "Model used by the selected provider. API and CLI choices are validated when generating a message.",
+          "modelProviderMetadata": {
+            "api": {
+              "default": "gpt-5",
+              "models": ["gpt-5", "gpt-5-mini", "gpt-5-nano"]
+            },
+            "cli": {
+              "default": "default",
+              "models": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]
+            }
+          }
         },
         "codexCommitButton.instructionsFile": {
           "type": "string",

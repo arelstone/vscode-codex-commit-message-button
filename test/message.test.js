@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const { buildInstructions, cleanMessage, instructionsPathSegments } = require('../src/message');
 const { buildCliArguments, buildCliPrompt } = require('../src/codex-cli');
 const { getModelForProvider } = require('../src/models');
+const manifest = require('../package.json');
 
 test('instructions include repository guidance and require only a commit message', () => {
   const instructions = buildInstructions('Use Conventional Commits.');
@@ -43,10 +44,12 @@ test('CLI default model does not pass --model to Codex', () => {
 });
 
 test('the single model setting resolves default and validates the selected provider', () => {
-  assert.equal(getModelForProvider('api', 'default'), 'gpt-5');
-  assert.equal(getModelForProvider('cli', 'default'), 'default');
-  assert.equal(getModelForProvider('api', 'gpt-5-mini'), 'gpt-5-mini');
-  assert.equal(getModelForProvider('cli', 'gpt-5.6-sol'), 'gpt-5.6-sol');
-  assert.throws(() => getModelForProvider('api', 'gpt-5.6-sol'), /not available/);
-  assert.throws(() => getModelForProvider('cli', 'gpt-5'), /not available/);
+  const modelSetting = manifest.contributes.configuration.properties['codexCommitButton.model'];
+  const { api, cli } = modelSetting.modelProviderMetadata;
+  assert.equal(getModelForProvider('api', modelSetting.default), api.default);
+  assert.equal(getModelForProvider('cli', modelSetting.default), cli.default);
+  for (const model of api.models) assert.equal(getModelForProvider('api', model), model);
+  for (const model of cli.models) assert.equal(getModelForProvider('cli', model), model);
+  assert.throws(() => getModelForProvider('api', cli.models[0]), /not available/);
+  assert.throws(() => getModelForProvider('cli', api.models[0]), /not available/);
 });
