@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { buildInstructions, cleanMessage, instructionsPathSegments } = require('../src/message');
-const { buildCliArguments, buildCliPrompt } = require('../src/codex-cli');
+const { buildCliArguments, buildCliPrompt, cliExitError } = require('../src/codex-cli');
 const { getModelForProvider } = require('../src/models');
 const manifest = require('../package.json');
 
@@ -43,13 +43,38 @@ test('CLI default model does not pass --model to Codex', () => {
   ]);
 });
 
-test('the single model setting resolves default and validates the selected provider', () => {
+test('CLI errors expose the model failure without the banner or staged prompt', () => {
+  const failure = `ERROR: ${JSON.stringify({ error: { message: "The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account." } })}`;
+  const error = cliExitError(1, `OpenAI Codex v0.159.3\nuser\nPRIVATE STAGED DIFF\n${failure}\n${failure}\n`);
+  assert.match(error.message, /model is not supported/);
+  assert.match(error.message, /codexCommitButton.model/);
+  assert.match(error.message, /inherits your Codex CLI configuration/);
+  assert.doesNotMatch(error.message, /PRIVATE|OpenAI Codex|ERROR:|invalid_request_error/);
+  assert.equal(error.message.split('ChatGPT account.').length, 2);
+});
+
+test('CLI errors retain plain diagnostics and handle missing diagnostics', () => {
+  assert.equal(cliExitError(1, 'user\nPRIVATE DIFF\nError: Authentication failed\n').message,
+    'Codex CLI exited with code 1. Authentication failed');
+  assert.equal(cliExitError(2, 'user\nPRIVATE DIFF\n').message,
+    'Codex CLI exited with code 2. Check your Codex CLI login and configuration.');
+});
+
+test('the model text input resolves provider defaults and accepts custom model names', () => {
   const modelSetting = manifest.contributes.configuration.properties['codexCommitButton.model'];
   const { api, cli } = modelSetting.modelProviderMetadata;
   assert.equal(getModelForProvider('api', modelSetting.default), api.default);
   assert.equal(getModelForProvider('cli', modelSetting.default), cli.default);
-  for (const model of api.models) assert.equal(getModelForProvider('api', model), model);
-  for (const model of cli.models) assert.equal(getModelForProvider('cli', model), model);
-  assert.throws(() => getModelForProvider('api', cli.models[0]), /not available/);
-  assert.throws(() => getModelForProvider('cli', api.models[0]), /not available/);
+  assert.equal(modelSetting.type, 'string');
+  assert.equal(modelSetting.enum, undefined);
+  for (const provider of ['api', 'cli']) {
+    assert.equal(getModelForProvider(provider, 'custom-model'), 'custom-model');
+    assert.equal(getModelForProvider(provider, '  custom-model  '), 'custom-model');
+    assert.equal(getModelForProvider(provider, ' default '), provider === 'api' ? api.default : cli.default);
+    for (const invalid of ['', '  ', null, 42]) {
+      assert.throws(() => getModelForProvider(provider, invalid), /non-empty model name/);
+    }
+  }
+  assert.throws(() => getModelForProvider('unknown', 'custom-model'), /Unknown model provider/);
+  assert.throws(() => getModelForProvider('toString', 'custom-model'), /Unknown model provider/);
 });

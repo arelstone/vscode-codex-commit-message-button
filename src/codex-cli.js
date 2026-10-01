@@ -25,6 +25,25 @@ function buildCliPrompt({ instructions, stagedDiff }) {
   return `${buildInstructions(instructions)}\n\nStaged diff:\n${stagedDiff}`;
 }
 
+function cliExitError(code, stderr) {
+  const messages = stderr.split(/\r?\n/)
+    .filter((line) => /^(?:ERROR|Error|fatal):\s*/.test(line))
+    .map((line) => {
+      const detail = line.replace(/^(?:ERROR|Error|fatal):\s*/, '');
+      try {
+        const parsed = JSON.parse(detail);
+        return parsed.error?.message || parsed.message || detail;
+      } catch {
+        return detail;
+      }
+    });
+  const detail = [...new Set(messages)].join(' ').slice(0, 1200);
+  const hint = /model.*not supported/i.test(detail)
+    ? ' Select a model supported by your CLI account in codexCommitButton.model. The default option inherits your Codex CLI configuration.'
+    : '';
+  return new Error(`Codex CLI exited with code ${code}.${detail ? ` ${detail}` : ' Check your Codex CLI login and configuration.'}${hint}`);
+}
+
 async function requestCommitMessageFromCli({ model, instructions, stagedDiff, timeoutMs, token, cwd }) {
   const outputDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'codex-commit-message-'));
   const outputPath = path.join(outputDirectory, 'message.txt');
@@ -62,7 +81,7 @@ async function requestCommitMessageFromCli({ model, instructions, stagedDiff, ti
       child.on('close', (code) => {
         if (timedOut) return finish(new Error(`Codex CLI timed out after ${Math.round(timeoutMs / 1000)} seconds.`));
         if (cancelled) return finish(Object.assign(new Error('Cancelled'), { name: 'AbortError' }));
-        if (code !== 0) return finish(new Error(`Codex CLI exited with code ${code}.${stderr.trim() ? ` ${stderr.trim()}` : ''}`));
+        if (code !== 0) return finish(cliExitError(code, stderr));
         finish();
       });
       child.stdin.end(buildCliPrompt({ instructions, stagedDiff }));
@@ -73,4 +92,4 @@ async function requestCommitMessageFromCli({ model, instructions, stagedDiff, ti
   }
 }
 
-module.exports = { buildCliArguments, buildCliPrompt, requestCommitMessageFromCli };
+module.exports = { buildCliArguments, buildCliPrompt, cliExitError, requestCommitMessageFromCli };
