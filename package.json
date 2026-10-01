@@ -4,10 +4,20 @@
   "description": "A small Source Control sparkle button that uses the OpenAI Responses API or Codex CLI to write a commit message.",
   "version": "0.1.0",
   "publisher": "local",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arelstone/vscode-codex-commit-message-button.git"
+  },
   "license": "MIT",
-  "engines": { "vscode": "^1.90.0" },
-  "categories": ["SCM Providers"],
-  "activationEvents": ["onCommand:codexCommitButton.generate"],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "SCM Providers"
+  ],
+  "activationEvents": [
+    "onCommand:codexCommitButton.generate"
+  ],
   "main": "./src/extension.js",
   "contributes": {
     "commands": [
@@ -17,8 +27,16 @@
         "category": "Codex",
         "icon": "$(sparkle)"
       },
-      { "command": "codexCommitButton.setApiKey", "title": "Set OpenAI API Key", "category": "Codex" },
-      { "command": "codexCommitButton.clearApiKey", "title": "Clear OpenAI API Key", "category": "Codex" }
+      {
+        "command": "codexCommitButton.setApiKey",
+        "title": "Set OpenAI API Key",
+        "category": "Codex"
+      },
+      {
+        "command": "codexCommitButton.clearApiKey",
+        "title": "Clear OpenAI API Key",
+        "category": "Codex"
+      }
     ],
     "menus": {
       "scm/title": [
@@ -29,9 +47,15 @@
         }
       ],
       "commandPalette": [
-        { "command": "codexCommitButton.generate" },
-        { "command": "codexCommitButton.setApiKey" },
-        { "command": "codexCommitButton.clearApiKey" }
+        {
+          "command": "codexCommitButton.generate"
+        },
+        {
+          "command": "codexCommitButton.setApiKey"
+        },
+        {
+          "command": "codexCommitButton.clearApiKey"
+        }
       ]
     },
     "configuration": {
@@ -39,22 +63,27 @@
       "properties": {
         "codexCommitButton.provider": {
           "type": "string",
-          "enum": ["api", "cli"],
+          "enum": [
+            "api",
+            "cli"
+          ],
           "default": "api",
           "scope": "resource",
           "description": "How to generate commit messages: the OpenAI Responses API or the locally installed Codex CLI."
         },
         "codexCommitButton.model": {
           "type": "string",
-          "enum": ["default", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
-          "enumDescriptions": [
-            "Use gpt-5 for the API provider or the configured model for the signed-in Codex CLI.",
-            "GPT-5 for API generation.",
-            "A faster, lower-cost GPT-5 API model.",
-            "The smallest, lowest-cost GPT-5 API model.",
-            "Use gpt-5.6-sol with the Codex CLI, if available to the signed-in account.",
-            "Use gpt-5.6-terra with the Codex CLI, if available to the signed-in account.",
-            "Use gpt-5.6-luna with the Codex CLI, if available to the signed-in account."
+          "enum": [
+            "default",
+            "gpt-6.1-sol",
+            "gpt-6-sol",
+            "gpt-6-luna",
+            "gpt-5",
+            "gpt-5-mini",
+            "gpt-5-nano",
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna"
           ],
           "default": "default",
           "scope": "resource",
@@ -62,11 +91,22 @@
           "modelProviderMetadata": {
             "api": {
               "default": "gpt-5",
-              "models": ["gpt-5", "gpt-5-mini", "gpt-5-nano"]
+              "models": [
+                "gpt-5",
+                "gpt-5-mini",
+                "gpt-5-nano"
+              ]
             },
             "cli": {
               "default": "default",
-              "models": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]
+              "models": [
+                "gpt-6.1-sol",
+                "gpt-6-sol",
+                "gpt-6-luna",
+                "gpt-5.6-sol",
+                "gpt-5.6-terra",
+                "gpt-5.6-luna"
+              ]
             }
           }
         },
@@ -90,7 +130,9 @@
     "test": "node --test test/*.test.js",
     "package": "vsce package"
   },
-  "dependencies": { "openai": "^6.49.0" },
+  "dependencies": {
+    "openai": "^6.49.0"
+  },
   "devDependencies": {
     "@vscode/vsce": "^3.6.2"
   }
